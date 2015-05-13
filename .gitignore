@@ -1,0 +1,23 @@
+# .gitignore, created MM, 2015-05-12
+
+.idea
+*.classpath
+*.iml
+*.project
+.venv
+ideaj
+out/
+*.pyc
+build/
+*.dmg
+*.iso
+*.rar
+*.zip
+.metadata/
+*.log
+*.sqlite
+*.swp
+.DS_Store
+dist/
+requirements.txt.freeze
+
