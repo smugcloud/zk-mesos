@@ -89,3 +89,5 @@ dependencies::
 
 Note that this step is not necessary (just use ``proto/messages_pb2.py``) unless you change the contents of
 ``messages.proto`` (which is not advisable, as it would make it incompatible with ``mesos/messages.proto::MasterInfo``).
+
+.. _Google Protobuf: https://developers.google.com/protocol-buffers/docs/pythontutorial
