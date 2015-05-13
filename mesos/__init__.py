@@ -49,10 +49,12 @@ class ZookeeperDiscovery(object):
         address(es) of the Mesos Masters registered with Zookeeper.
     """
 
-    def __init__(self, zk_uri=Constants.DEFAULT_ZK, timeout_sec=Constants.DEFAULT_TIMEOUT_SEC):
+    def __init__(self, zk_uri=Constants.DEFAULT_ZK, timeout_sec=Constants.DEFAULT_TIMEOUT_SEC,
+                 label=Constants.MASTER_INFO_LABEL):
         self.uri = zk_uri
         self.zk_hosts, self.zk_path = self._parse_uri(self.uri)
         self._zk = kazoo.client.KazooClient(hosts=self.zk_hosts, timeout=timeout_sec)
+        self.label = label
         try:
             self._zk.start(timeout=timeout_sec)
         except Exception as e:
@@ -67,8 +69,51 @@ class ZookeeperDiscovery(object):
     def retrieve_master_info(self):
         """ Retrieves from ZK the MasterInfo data
 
-        :return: the retrieved ```MasterInfo``` data
+        :return: the retrieved ```MasterInfo``` data for one Master node
         :rtype: MasterInfo
+
+        :raises NoNodeError: if the ```self.zk_path`` does not exist
+        :raises ZookeeperExcetpion: if there are errors while fetching the data
+        :raises ParseError: if the data cannot be parsed into a valid ```MasterInfo``` protobuf
+        """
+        node_path = os.path.join(self.zk_path, self._get_nodes()[0])
+        # TODO: make the ``stat`` accessible to clients of this class, perhaps?
+        data, stat = self._zk.get(node_path)
+        master_info = MasterInfo()
+        master_info.ParseFromString(data)
+        return master_info
+
+    def retrieve_all_masters_info(self):
+        """ Retrieves information about the entire set of Mesos Masters currently active
+
+
+        :return: the retrieved ```MasterInfo``` data for all the Master nodes
+        :rtype: list(MasterInfo)
+
+        :raises NoNodeError: if the ```self.zk_path`` does not exist
+        :raises ZookeeperExcetpion: if there are errors while fetching the data
+        :raises ParseError: if the data cannot be parsed into a valid ```MasterInfo``` protobuf
+        """
+        nodes = self._get_nodes()
+        if not nodes:
+            raise ZookeeperNoMaster("No Mesos Masters found for {}".format(self.zk_path))
+        master_info = []
+        for node in nodes:
+            node_path = os.path.join(self.zk_path, node)
+            data, stat = self._zk.get(node_path)
+            master_info_pb = MasterInfo()
+            master_info_pb.ParseFromString(data)
+            master_info.append(master_info_pb)
+        return master_info
+
+    def _get_nodes(self):
+        """ Gets all the znodes that are currently active
+
+            Internal method, should not be used by clients; use either of ```retrieve_all_masters_info()```
+            or ```retrieve_master_info()```.
+
+        :return: the list of node names (**not** the full path)
+        :rtype: list(str)
 
         :raises NoNodeError: if the ```self.zk_path`` does not exist
         :raises ZookeeperExcetpion: if there are errors while fetching the data
@@ -77,18 +122,10 @@ class ZookeeperDiscovery(object):
         if not self._zk.exists(self.zk_path):
             raise kazoo.exceptions.NoNodeError('The path {self.zk_path} provided in the URI {self.zk_uri} '
                                                'could not be found on the Zookeeper ensemble'.format(self=self))
-        # TODO: currently the LABEL is assumed hard-coded (see MASTER_INFO_LABEL in constants.cpp)
-        nodes = [node for node in self._zk.get_children(self.zk_path) if node.startswith(Constants.MASTER_INFO_LABEL)]
+        nodes = [node for node in self._zk.get_children(self.zk_path) if node.startswith(self.label)]
         if not nodes:
             raise ZookeeperNoMaster('No Mesos Master found for {self.uri}'.format(self=self))
-        # TODO: right now all we need is to get the hostname:port of any one Master, as it will
-        #       redirect (302) the caller to the correct Leader
-        node_path = os.path.join(self.zk_path, nodes[0])
-        data, stat = self._zk.get(node_path)
-        # TODO: make the ``stat`` accessible to clients of this class, perhaps?
-        master_info = MasterInfo()
-        master_info.ParseFromString(data)
-        return master_info
+        return nodes
 
     def get_master_url(self):
         """ Convenience method to retrieve the Master location as a URL (``http://hostname:port``) from the ZK data
@@ -104,5 +141,18 @@ class ZookeeperDiscovery(object):
         except kazoo.exceptions.ZookeeperError:
             return None
 
+    def get_all_urls(self):
+        """ Gets all Masters' URLs
 
-
+        :return: the list of hostname:port URLs for all the masters; or an empty list if an error occurs
+        :rtype: list(str)
+        """
+        urls = []
+        try:
+            masters_info = self.retrieve_all_masters_info()
+            for master_info in masters_info:
+                urls.append('http://{host}:{port}'.format(host=master_info.hostname, port=master_info.port))
+        except kazoo.exceptions.ZookeeperError:
+            # TODO: add logging and log(ERROR) here
+            pass
+        return urls
