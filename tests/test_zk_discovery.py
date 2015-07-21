@@ -4,9 +4,12 @@ import unittest
 
 from mesos import ZookeeperDiscovery
 
+
 class TestZookeeperDiscovery(unittest.TestCase):
     def setUp(self):
-        self.zk = ZookeeperDiscovery()
+        self.uri = 'zk://localhost:2181/test/marco'
+        self.zkd = ZookeeperDiscovery(self.uri)
+        self.assertIsNotNone(self.zkd)
 
     def test_uriparse(self):
         uri = 'zk://10.10.1.1:2181,10.10.0.81:2181/mesos/test/path'
@@ -15,19 +18,14 @@ class TestZookeeperDiscovery(unittest.TestCase):
         self.assertEqual('/mesos/test/path', p)
 
     def test_find_master(self):
-        uri = 'zk://localhost:2181/test/marco'
-        zkd = ZookeeperDiscovery(uri)
-        self.assertIsNotNone(zkd)
-        minfo = zkd.retrieve_master_info()
+        minfo = self.zkd.retrieve_leader()
         self.assertIsNotNone(minfo)
-        self.assertEqual('localhost', minfo.hostname)
-        self.assertIn(minfo.port, xrange(5050, 5060))
+        self.assertEqual('localhost', minfo.get('hostname'))
+        self.assertIn(minfo.get('port'), xrange(5050, 5060))
 
     def test_get_http(self):
-        uri = 'zk://localhost:2181/test/marco'
-        zkd = ZookeeperDiscovery(uri)
-        self.assertIsNotNone(zkd)
-        url = zkd.get_master_url()
+        url = self.zkd.get_master_url()
         self.assertIsNotNone(url)
         # TODO: is this the best we can do? we cannot know the actual port where this Master is running
         self.assertTrue(url.startswith('http://localhost:50'))
+        self.assertEqual('127.0.0.1', self.zkd.get_ip())

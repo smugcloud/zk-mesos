@@ -45,7 +45,7 @@ To understand how this works, look in the Mesos source code, ``detector.cpp``, l
     }
 
 
-This will accept a user-define ``path`` inside wich Zookeeper will be asked to create sequential nodes; for example,
+This will accept a user-defined ``path`` inside wich Zookeeper will be asked to create sequential, ephemeral nodes; for example,
 after the first master had been terminated and two additional ones started::
 
 
@@ -90,4 +90,39 @@ dependencies::
 Note that this step is not necessary (just use ``proto/messages_pb2.py``) unless you change the contents of
 ``messages.proto`` (which is not advisable, as it would make it incompatible with ``mesos/messages.proto::MasterInfo``).
 
+Running
+-------
+
+To run the demo app, just launch the ``mesos-leader`` script::
+
+    ./mesos-leader.py --zk zk://localhost:2181/test/marco -a
+
+this should emit the full list of the running Masters; eg, something like::
+
+    2015-05-20 10:56:46,671 Found 2 Masters; current Leader: localhost
+    [
+        {
+            "ip":16777343,
+            "hostname":"localhost",
+            "pid":"master@127.0.0.1:5051",
+            "id":"20150520-102342-16777343-5051-51088",
+            "port":5051
+        },
+        {
+            "ip":16777343,
+            "hostname":"localhost",
+            "pid":"master@127.0.0.1:5050",
+            "id":"20150520-102046-16777343-5050-50974",
+            "port":5050
+        }
+    ]
+
+
+
+Note that (due to bug MESOS-1201_) the IP address stored in the ``ip`` field won't convert correctly to
+the correct IP address (bytes are stored in network order, as opposed to host order); we have thus to
+rely on the ``pid`` to retrieve the host IP.
+
+
 .. _Google Protobuf: https://developers.google.com/protocol-buffers/docs/pythontutorial
+.. _MESOS-1201: https://issues.apache.org/jira/browse/MESOS-1201

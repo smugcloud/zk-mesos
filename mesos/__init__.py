@@ -66,7 +66,7 @@ class ZookeeperDiscovery(object):
         parse_url = urlparse.urlparse(uri, scheme='zk:', allow_fragments=False)
         return parse_url.netloc, parse_url.path
 
-    def retrieve_master_info(self):
+    def retrieve_leader(self):
         """ Retrieves from ZK the MasterInfo data
 
         :return: the retrieved ```MasterInfo``` data for one Master node
@@ -76,14 +76,17 @@ class ZookeeperDiscovery(object):
         :raises ZookeeperExcetpion: if there are errors while fetching the data
         :raises ParseError: if the data cannot be parsed into a valid ```MasterInfo``` protobuf
         """
-        node_path = os.path.join(self.zk_path, self._get_nodes()[0])
+        all_znodes = self._get_nodes()
+        # The lowest numbered znode is the Leader
+        all_znodes.sort()
+        node_path = os.path.join(self.zk_path, all_znodes[0])
         # TODO: make the ``stat`` accessible to clients of this class, perhaps?
         data, stat = self._zk.get(node_path)
         master_info = MasterInfo()
         master_info.ParseFromString(data)
-        return master_info
+        return ZookeeperDiscovery._to_dict(master_info)
 
-    def retrieve_all_masters_info(self):
+    def retrieve_all(self):
         """ Retrieves information about the entire set of Mesos Masters currently active
 
 
@@ -103,14 +106,34 @@ class ZookeeperDiscovery(object):
             data, stat = self._zk.get(node_path)
             master_info_pb = MasterInfo()
             master_info_pb.ParseFromString(data)
-            master_info.append(master_info_pb)
+            master_info.append(ZookeeperDiscovery._to_dict(master_info_pb))
         return master_info
 
-    def _get_nodes(self):
-        """ Gets all the znodes that are currently active
+    @staticmethod
+    def _to_dict(pb_info):
+        """ Converts a MasterInfo protobuf into its dictionary equivalent
 
-            Internal method, should not be used by clients; use either of ```retrieve_all_masters_info()```
-            or ```retrieve_master_info()```.
+        :param pb_info: MasterInfo
+        :return: the equivalent dict
+        :rtype: dict
+        """
+        res = {
+            'pid': pb_info.pid,
+            'ip': pb_info.ip,
+            'hostname': pb_info.hostname,
+            'id': pb_info.id,
+            'port': pb_info.port,
+            'version': pb_info.version,
+            'ip_address': pb_info.ip_address
+        }
+        return res
+
+
+    def _get_nodes(self):
+        """ Gets all the znode names that are currently active
+
+            Internal method, should **not** be used by clients; use either of ```retrieve_all()```
+            or ```retrieve_leader()```.
 
         :return: the list of node names (**not** the full path)
         :rtype: list(str)
@@ -122,7 +145,8 @@ class ZookeeperDiscovery(object):
         if not self._zk.exists(self.zk_path):
             raise kazoo.exceptions.NoNodeError('The path {self.zk_path} provided in the URI {self.zk_uri} '
                                                'could not be found on the Zookeeper ensemble'.format(self=self))
-        nodes = [node for node in self._zk.get_children(self.zk_path) if node.startswith(self.label)]
+        nodes = [node for node in self._zk.get_children(self.zk_path) if node.startswith(self.label) and
+                 not node.endswith('.json')]
         if not nodes:
             raise ZookeeperNoMaster('No Mesos Master found for {self.uri}'.format(self=self))
         return nodes
@@ -136,8 +160,9 @@ class ZookeeperDiscovery(object):
         :rtype: str
         """
         try:
-            master_info = self.retrieve_master_info()
-            return 'http://{host}:{port}'.format(host=master_info.hostname, port=master_info.port)
+            master_info = self.retrieve_leader()
+            return 'http://{host}:{port}'.format(host=master_info.get('hostname'),
+                                                 port=master_info.get('port'))
         except kazoo.exceptions.ZookeeperError:
             return None
 
@@ -149,10 +174,14 @@ class ZookeeperDiscovery(object):
         """
         urls = []
         try:
-            masters_info = self.retrieve_all_masters_info()
+            masters_info = self.retrieve_all()
             for master_info in masters_info:
                 urls.append('http://{host}:{port}'.format(host=master_info.hostname, port=master_info.port))
         except kazoo.exceptions.ZookeeperError:
             # TODO: add logging and log(ERROR) here
             pass
         return urls
+
+    def get_ip(self):
+        master_info = self.retrieve_leader()
+        return master_info.get('ip_address')
