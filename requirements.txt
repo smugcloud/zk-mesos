@@ -5,7 +5,7 @@ coverage==3.7.1
 doctools==0.2.2
 futures==2.2.0
 google-apputils==0.4.2
-kazoo==2.1
+kazoo==2.2.1
 protobuf==2.6.1
 py==1.4.26
 pytest==2.7.0

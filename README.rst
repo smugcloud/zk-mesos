@@ -68,14 +68,14 @@ In our code, we follow the same approach: given a ZK URL, we look inside the pro
 ``znodes`` which start with the given ``label`` (currently, we use the default value, see
 ``Constants.MASTER_INFO_LABEL``).
 
-Once found a valid data node, we retrieve the binary data and deserialize back to a valid ``MasterInfo`` protobuf
-(see ``proto/messages.proto``).
+Once found a valid data node, we retrieve the binary data and deserialize back to a valid
+``MasterInfo`` protobuf (see ``proto/messages.proto``).
 
 Installation
 ------------
 
-To compile the ``.proto`` file to a valid Python file, we need to enable `Google Protobuf`_ and a few other
-dependencies::
+To compile the ``.proto`` file to a valid Python file, we need to enable `Google Protobuf`_ and
+a few other dependencies::
 
     $ pip freeze
     google-apputils==0.4.2
@@ -83,12 +83,14 @@ dependencies::
     protobuf==2.6.1
     python-gflags==2.0
 
-(see ``requirements.txt`` for the full set of dependencies); you can then build the ``messages_pb2.py`` with::
+(see ``requirements.txt`` for the full set of dependencies); you can then build the
+``messages_pb2.py`` with::
 
     SRC_DIR=proto protoc -I=$SRC_DIR --python_out=$SRC_DIR $SRC_DIR/messages.proto
 
-Note that this step is not necessary (just use ``proto/messages_pb2.py``) unless you change the contents of
-``messages.proto`` (which is not advisable, as it would make it incompatible with ``mesos/messages.proto::MasterInfo``).
+Note that this step is not necessary (just use ``proto/messages_pb2.py``) unless you change the
+contents of ``messages.proto`` (which is not advisable, as it would make it incompatible with
+``mesos/messages.proto::MasterInfo``).
 
 Running
 -------
@@ -119,9 +121,9 @@ this should emit the full list of the running Masters; eg, something like::
 
 
 
-Note that (due to bug MESOS-1201_) the IP address stored in the ``ip`` field won't convert correctly to
-the correct IP address (bytes are stored in network order, as opposed to host order); we have thus to
-rely on the ``pid`` to retrieve the host IP.
+Note that (due to bug MESOS-1201_) the IP address stored in the ``ip`` field won't convert
+correctly to the correct IP address (bytes are stored in network order, as opposed to host order);
+we have thus to rely on the ``pid`` to retrieve the host IP.
 
 
 .. _Google Protobuf: https://developers.google.com/protocol-buffers/docs/pythontutorial

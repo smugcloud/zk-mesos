@@ -6,7 +6,7 @@ import argparse
 import json
 import logging
 
-from mesos import ZookeeperDiscovery
+from mesos import ZookeeperDiscoveryProtocolBuffer
 
 __author__ = 'marco'
 
@@ -23,7 +23,7 @@ def parse_args():
 def main():
     config = parse_args()
     logging.info("Connecting to Zookeeper at {}".format(config.zk))
-    zk_discovery = ZookeeperDiscovery(config.zk, timeout_sec=15)
+    zk_discovery = ZookeeperDiscoveryProtocolBuffer(config.zk, timeout_sec=15)
     logging.info("Connected")
     if config.all:
         res = zk_discovery.retrieve_all()
