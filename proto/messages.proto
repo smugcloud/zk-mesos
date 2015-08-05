@@ -23,6 +23,17 @@ option java_outer_classname = "Protos";
 
 
 /**
+ * A network address.
+ */
+message Address {
+  // May contain a hostname, IP address, or both.
+  optional string hostname = 1;
+  optional string ip = 2;
+
+  required int32 port = 3;
+}
+
+/**
  * Describes a master. This will probably have more fields in the
  * future which might be used, for example, to link a framework webui
  * to a master webui.
@@ -57,5 +68,5 @@ message MasterInfo {
   // The full IP address (supports both IPv4 and IPv6 formats)
   // and supersedes the use of `ip` above.
   // Can be configured using the --ip flag.
-  optional string ip_address = 7;
+  optional Address address = 7;
 }

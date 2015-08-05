@@ -7,7 +7,7 @@ from mesos import ZookeeperDiscovery
 
 class TestZookeeperDiscovery(unittest.TestCase):
     def setUp(self):
-        self.uri = 'zk://localhost:2181/test/marco'
+        self.uri = 'zk://localhost:2181/mesos/test'
         self.zkd = ZookeeperDiscovery(self.uri)
         self.assertIsNotNone(self.zkd)
 

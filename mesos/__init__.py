@@ -23,7 +23,6 @@ import kazoo.exceptions
 
 from messages_pb2 import MasterInfo
 
-
 __author__ = 'marco@mesosphere.io'
 
 
@@ -32,8 +31,8 @@ class ZookeeperNoMaster(kazoo.exceptions.ZookeeperError):
 
 
 class Constants(object):
-    #: Default URI for a local ZK; uses /mesos/conf as the path
-    DEFAULT_ZK = "zk://localhost:2181/mesos/conf"
+    #: Default URI for a local ZK; uses /mesos as the path
+    DEFAULT_ZK = "zk://localhost:2181/mesos"
 
     #: timeout for a server connection, in seconds
     DEFAULT_TIMEOUT_SEC = 10
@@ -119,15 +118,13 @@ class ZookeeperDiscovery(object):
         """
         res = {
             'pid': pb_info.pid,
-            'ip': pb_info.ip,
-            'hostname': pb_info.hostname,
+            'ip': pb_info.address.ip,
+            'hostname': pb_info.address.hostname,
             'id': pb_info.id,
-            'port': pb_info.port,
-            'version': pb_info.version,
-            'ip_address': pb_info.ip_address
+            'port': pb_info.address.port,
+            'version': pb_info.version
         }
         return res
-
 
     def _get_nodes(self):
         """ Gets all the znode names that are currently active
@@ -143,7 +140,7 @@ class ZookeeperDiscovery(object):
         :raises ParseError: if the data cannot be parsed into a valid ```MasterInfo``` protobuf
         """
         if not self._zk.exists(self.zk_path):
-            raise kazoo.exceptions.NoNodeError('The path {self.zk_path} provided in the URI {self.zk_uri} '
+            raise kazoo.exceptions.NoNodeError('The path {self.zk_path} provided in the URI {self.uri} '
                                                'could not be found on the Zookeeper ensemble'.format(self=self))
         nodes = [node for node in self._zk.get_children(self.zk_path) if node.startswith(self.label) and
                  not node.endswith('.json')]
@@ -184,4 +181,4 @@ class ZookeeperDiscovery(object):
 
     def get_ip(self):
         master_info = self.retrieve_leader()
-        return master_info.get('ip_address')
+        return master_info.get('ip')

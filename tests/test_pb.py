@@ -2,7 +2,7 @@ __author__ = 'marco'
 
 import unittest
 
-from messages_pb2 import MasterInfo
+from messages_pb2 import MasterInfo, Address
 
 
 class TestMessagesPb(unittest.TestCase):
@@ -22,14 +22,17 @@ class TestMessagesPb(unittest.TestCase):
         minfo = MasterInfo()
 
         # Initialize required fields
-        minfo.ip = 23345
+        minfo.port = 1234
+        minfo.ip = 987654
         minfo.id = 'dontcare'
         minfo.version = "0.24.0"
-        minfo.ip_address = '10.1.100.5'
-        minfo.port = 5050
+        address = minfo.address
+        address.ip = "10.10.1.22"
+        address.port = 5050
         ss = minfo.SerializeToString()
 
         actual = MasterInfo()
         actual.ParseFromString(ss)
         self.assertEqual('0.24.0', actual.version)
-        self.assertEqual('10.1.100.5', actual.ip_address)
+        self.assertEqual('10.10.1.22', actual.address.ip)
+        self.assertEqual(5050, actual.address.port)
