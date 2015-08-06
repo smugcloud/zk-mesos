@@ -4,7 +4,6 @@ Zookeeper Mesos Discovery
 
 .. image:: https://go-shields.herokuapp.com/license-apache2-blue.png
 
-
 :Author: Marco Massenzio (marco@alertavert.com)
 :Version: 0.1
 :Last Updated: 2015-05-12
@@ -21,6 +20,14 @@ do not require bindings to C/C++ libraries.
 The approach presented here meets this need halfway: it still requires the `Google Protobuf`_ step (although, given
 that the only protobuf message used is ``MasterInfo`` which should be pretty stable, this is fairly lightweight
 requirement) but it is otherwise "pure" Python (a very similar approach would work just as well for Java).
+
+
+**NOTE**
+
+The bulk of the contents of this repository (all the code relative to JSON discovery)
+has been moved to `mesos/commons`_ where the Apache Mesos community will continue to
+add facilities and utilities
+
 
 Approach
 --------
@@ -97,7 +104,7 @@ Running
 
 To run the demo app, just launch the ``mesos-leader`` script::
 
-    ./mesos-leader.py --zk zk://localhost:2181/test/marco -a
+    ./mesos-leader.py --zk zk://localhost:2181/mesos/test -a
 
 this should emit the full list of the running Masters; eg, something like::
 
@@ -128,3 +135,4 @@ we have thus to rely on the ``pid`` to retrieve the host IP.
 
 .. _Google Protobuf: https://developers.google.com/protocol-buffers/docs/pythontutorial
 .. _MESOS-1201: https://issues.apache.org/jira/browse/MESOS-1201
+.. _mesos/commons: https://github.com/mesos/commons
