@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import print_function
+
 from abc import ABCMeta, abstractmethod
 import json
 import logging
@@ -24,13 +26,16 @@ import urlparse
 import kazoo.client
 import kazoo.exceptions
 
+# TODO: this needs to be adjusted with the correct package
 from messages_pb2 import MasterInfo
+
 
 __author__ = 'marco@mesosphere.io'
 
 
 class ZookeeperNoMaster(kazoo.exceptions.ZookeeperError):
     pass
+
 
 class ZooKeeperInvalidData(kazoo.exceptions.ZookeeperError):
     pass
@@ -146,8 +151,7 @@ class ZookeeperDiscovery(object):
         """
         try:
             ip, port = self.get_leader_ip()
-            return 'http://{host}:{port}'.format(host=ip,
-                                                 port=port)
+            return 'http://{host}:{port}'.format(host=ip, port=port)
         except kazoo.exceptions.ZookeeperError:
             return None
 
@@ -326,3 +330,24 @@ class ZookeeperDiscoveryJson(ZookeeperDiscovery):
             data, stat = self._zk.get(node_path)
             master_info.append(json.loads(data))
         return master_info
+
+
+def zookeeper_discovery(version, zk_uri, timeout_sec=Constants.DEFAULT_TIMEOUT_SEC):
+    """ Factory method for a ```ZookeeperDiscovery``` implementation.
+
+    :param version: semantic version (```major.minor.patch```) to choose which implementation
+            of ```ZookeeperDiscovery``` to return
+    :type version: str
+    :return: a subclass of ```ZookeeperDiscovery``` suitable for the given ```version```
+    :rtype: ZookeeperDiscovery
+    """
+    if not re.match(r'\d+\.\d+(\.\d+)?', version):
+        raise ValueError("{} is not a valid semantic version for Apache Mesos".format(version))
+    try:
+        major, minor, _ = tuple(int(x) for x in version.split('.'))
+    except ValueError:
+        major, minor = tuple(int(x) for x in version.split('.'))
+    if major > 0 or minor > 23:
+        return ZookeeperDiscoveryJson(zk_uri, timeout_sec)
+    else:
+        return ZookeeperDiscoveryProtocolBuffer(zk_uri, timeout_sec)
