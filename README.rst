@@ -1,128 +1,72 @@
-=========================
-Zookeeper Mesos Discovery
-=========================
+======================
+Mesos Client Libraries
+======================
 
 .. image:: https://go-shields.herokuapp.com/license-apache2-blue.png
 
+:Author: Marco Massenzio (marco@mesosphere.io)
+:Version: 0.2
+:Last Updated: 2015-09-11
 
-:Author: Marco Massenzio (marco@alertavert.com)
-:Version: 0.1
-:Last Updated: 2015-05-12
+
+.. contents:: Table of Contents
+
 
 Motivation
-----------
+==========
 
-Currently, to discover a Mesos Master URL it is necessary to bind with native libraries (in particular, ``libmesos``)
-and deal with a lot unnecessary complication (eg, JNI for Java projects).
+Following the Apache Mesos `community meeting`_ of Sept-3-2015, it was decided that the Project
+Maintainers would discontinue support for third-party, non-C++ libraries after the 1.0 release:
+these will be deprecated and, after two quarters, removed from the Mesos official ASF repository.
 
-With the upcoming HTTP API it is desirable to have Frameworks that are 'pure language' (eg, Python and/or Java) and
-do not require bindings to C/C++ libraries.
+This project aims to support Apache Mesos HTTP API (as released on the 0.24 release) and
+subsequent modification.
 
-The approach presented here meets this need halfway: it still requires the `Google Protobuf`_ step (although, given
-that the only protobuf message used is ``MasterInfo`` which should be pretty stable, this is fairly lightweight
-requirement) but it is otherwise "pure" Python (a very similar approach would work just as well for Java).
+Although the source code is released as open-source software, under the terms of the
+`Apache 2 License`_ it is **important to note that this code is not endorsed by**
+**the Apache Mesos official maintaners** and is not currently under the aegis of the Apache
+Software Foundation.
 
-Approach
---------
+Scope
+=====
 
-To understand how this works, look in the Mesos source code, ``detector.cpp``, line 203::
+We currently aim to support:
 
-    Try<MasterDetector*> MasterDetector::create(const string& mechanism)
-    {
-        // ...
+- Leading Master Discovery via ZooKeeper;
+- HTTP API wrapper client.
 
-        if (strings::startsWith(mechanism, "zk://")) {
-            Try<zookeeper::URL> url = zookeeper::URL::parse(mechanism);
-            if (url.isError()) {
-              return Error(url.error());
-            }
-            if (url.get().path == "/") {
-              return Error(
-                  "Expecting a (chroot) path for ZooKeeper ('/' is not supported)");
-            }
-            return new ZooKeeperMasterDetector(url.get());
-        }
-    }
+This library is explicitly aimed at Python Mesos Framework developers (and soon, expanded to
+support Java too).
+
+Leading Master Discovery
+========================
+
+See the documentation in `docs/leader_discovery.rst`_
+
+An example usage is in `bin/mesos-leader`_ script.
 
 
-This will accept a user-defined ``path`` inside wich Zookeeper will be asked to create sequential, ephemeral nodes; for example,
-after the first master had been terminated and two additional ones started::
+HTTP API Client
+===============
+
+No implementation yet.
+
+See `notebooks/HTTP API Tests.ipynb`_ for an example of how to interact with the HTTP API, in an
+IPython Notebook.
+
+Contributing
+============
+
+Contributions from the community are welcomed and encouraged: please feel free to fork this
+repository and submit pull requests, report issues and request new features.
+
+I also plan to add contributors to the project; most likely, these will be folks who have
+contributed some PRs or already have good standing and reputation in the Mesos community (and,
+obviously, have demonstrated proficiency in Python).
 
 
-    [zk: localhost:2181(CONNECTED) 11] ls /test/marco
-    [log_replicas, info_0000000002]
-    [zk: localhost:2181(CONNECTED) 12] ls /test/marco
-    [info_0000000003, log_replicas, info_0000000002]
-    [zk: localhost:2181(CONNECTED) 13]
-
-master(s) were launched with::
-
-     ./bin/mesos-master.sh --zk=zk://localhost:2181/test/marco --quorum=1 --work_dir=/tmp/mesos-1
-
-
-A (C++) worker node can be instructed to find the Master node via::
-
-    ./bin/mesos-slave.sh --master=zk://localhost:2181/test/marco
-
-In our code, we follow the same approach: given a ZK URL, we look inside the provided ``path`` and look for data
-``znodes`` which start with the given ``label`` (currently, we use the default value, see
-``Constants.MASTER_INFO_LABEL``).
-
-Once found a valid data node, we retrieve the binary data and deserialize back to a valid ``MasterInfo`` protobuf
-(see ``proto/messages.proto``).
-
-Installation
-------------
-
-To compile the ``.proto`` file to a valid Python file, we need to enable `Google Protobuf`_ and a few other
-dependencies::
-
-    $ pip freeze
-    google-apputils==0.4.2
-    kazoo==2.1
-    protobuf==2.6.1
-    python-gflags==2.0
-
-(see ``requirements.txt`` for the full set of dependencies); you can then build the ``messages_pb2.py`` with::
-
-    SRC_DIR=proto protoc -I=$SRC_DIR --python_out=$SRC_DIR $SRC_DIR/messages.proto
-
-Note that this step is not necessary (just use ``proto/messages_pb2.py``) unless you change the contents of
-``messages.proto`` (which is not advisable, as it would make it incompatible with ``mesos/messages.proto::MasterInfo``).
-
-Running
--------
-
-To run the demo app, just launch the ``mesos-leader`` script::
-
-    ./mesos-leader.py --zk zk://localhost:2181/test/marco -a
-
-this should emit the full list of the running Masters; eg, something like::
-
-    2015-05-20 10:56:46,671 Found 2 Masters; current Leader: localhost
-    [
-        {
-            "ip":16777343,
-            "hostname":"localhost",
-            "pid":"master@127.0.0.1:5051",
-            "id":"20150520-102342-16777343-5051-51088",
-            "port":5051
-        },
-        {
-            "ip":16777343,
-            "hostname":"localhost",
-            "pid":"master@127.0.0.1:5050",
-            "id":"20150520-102046-16777343-5050-50974",
-            "port":5050
-        }
-    ]
-
-
-
-Note that (due to bug MESOS-1201_) the IP address stored in the ``ip`` field won't convert correctly to
-the correct IP address (bytes are stored in network order, as opposed to host order); we have thus to
-rely on the ``pid`` to retrieve the host IP.
-
-
-.. _Google Protobuf: https://developers.google.com/protocol-buffers/docs/pythontutorial
-.. _MESOS-1201: https://issues.apache.org/jira/browse/MESOS-1201
+.. _community meeting: https://docs.google.com/document/d/153CUCj5LOJCFAVpdDZC7COJDwKh9RDjxaTA0S7lzwDA/edit#heading=h.5vcsxedq9n7d
+.. _bin/mesos-leader: https://github.com/massenz/zk-mesos/blob/develop/bin/mesos-leader
+.. _docs/leader_discovery.rst: .. _proto/messages.proto: https://github.com/massenz/zk-mesos/blob/develop/docs/leader_discovery.rst
+.. _Apache 2 License: http://www.apache.org/licenses/LICENSE-2.0
+.. _notebooks/HTTP API Tests.ipynb: https://github.com/massenz/zk-mesos/blob/develop/notebooks/HTTP%20API%20Tests.ipynb

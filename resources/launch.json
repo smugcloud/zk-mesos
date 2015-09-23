@@ -1,0 +1,29 @@
+{
+    "framework_id": {
+        "value": "20150821-130640-855746752-5051-32042-0000"
+    },
+    "type": "ACCEPT",
+    "accept": {
+        "offer_ids": [
+            {
+                "value": "20150821-130640-855746752-5051-32042-O0"
+            }
+        ],
+        "operations": [
+            {
+                "type": "LAUNCH",
+                "launch": {
+                    "task_infos": [
+                        {
+                            "name": "List files",
+                            "command": {
+                                "shell": true,
+                                "value": "ls -la /tmp"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
