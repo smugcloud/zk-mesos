@@ -23,3 +23,6 @@ requirements.txt.freeze
 *pb2*
 .ipynb_checkpoints/
 
+.vagrant/
+*.deb
+

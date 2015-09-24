@@ -1,0 +1,85 @@
+{
+  "accept": {
+    "filters": {
+      "refuse_seconds": 5
+    },
+    "offer_ids": [
+      {
+        "value": "39aff76e-aef8-474a-8dd9-b7538b52b3fd-O0"
+      }
+    ],
+    "operations": [
+      {
+        "launch": {
+          "task_infos": [
+            {
+              "command": {
+                "shell": true,
+                "value": "sleep 1000"
+              },
+              "container": {
+                "docker": {
+                  "image": "busybox",
+                  "network": "HOST",
+                  "privileged": false
+                },
+                "type": "DOCKER"
+              },
+              "name": "",
+              "resources": [
+                {
+                  "name": "cpus",
+                  "role": "*",
+                  "scalar": {
+                    "value": 2
+                  },
+                  "type": "SCALAR"
+                },
+                {
+                  "name": "mem",
+                  "role": "*",
+                  "scalar": {
+                    "value": 1024
+                  },
+                  "type": "SCALAR"
+                },
+                {
+                  "name": "disk",
+                  "role": "*",
+                  "scalar": {
+                    "value": 1024
+                  },
+                  "type": "SCALAR"
+                },
+                {
+                  "name": "ports",
+                  "ranges": {
+                    "range": [
+                      {
+                        "begin": 31000,
+                        "end": 32000
+                      }
+                    ]
+                  },
+                  "role": "*",
+                  "type": "RANGES"
+                }
+              ],
+              "slave_id": {
+                "value": "39aff76e-aef8-474a-8dd9-b7538b52b3fd-S0"
+              },
+              "task_id": {
+                "value": "1"
+              }
+            }
+          ]
+        },
+        "type": "LAUNCH"
+      }
+    ]
+  },
+  "framework_id": {
+    "value": "39aff76e-aef8-474a-8dd9-b7538b52b3fd-0000"
+  },
+  "type": "ACCEPT”
+}
