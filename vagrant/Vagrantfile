@@ -28,17 +28,15 @@ Vagrant::Config.run do |config|
     # using a specific IP.
     master.vm.network "hostonly", "192.168.33.10"
 
-    # Shares folders to the guest VM.
-    master.vm.share_folder "pkg", "/var/local/images", "packages"
-
     # Installs Mesos (deb pkg) and its dependencies):
     master.vm.provision "Install Mesos", type: "shell" do |s|
       s.path = "install-mesos.sh"
     end
 
     # Launch Mesos Master
-    master.vm.provision "Run Master", type: "shell", path: "run-master.sh",
-        run: "always"
+    master.vm.provision "Run Master", type: "shell", run: "always" do |s|
+        s.path = "run-master.sh"
+    end
   end
 
   config.vm.define "agent" do |agent|
@@ -59,7 +57,6 @@ Vagrant::Config.run do |config|
 
 
     # Shares folders to the guest VM.
-    agent.vm.share_folder "pkg", "/var/local/images", "packages"
     agent.vm.share_folder "www", "/var/local/www", "../resources/static"
 
     # Enable provisioning with a shell script.
@@ -73,3 +70,4 @@ Vagrant::Config.run do |config|
         run: "always"
   end
 end
+
