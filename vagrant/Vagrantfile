@@ -65,6 +65,11 @@ Vagrant::Config.run do |config|
       s.path = "install-mesos.sh"
     end
 
+    # Installing Docker on the Agent only
+    agent.vm.provision "Install Docker", type: "shell" do |s|
+      s.path = "install-docker.sh"
+    end
+
     # Launch Mesos Agent
     agent.vm.provision "Run Agent Node 1", type: "shell", path: "run-agent.sh",
         run: "always"

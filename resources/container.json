@@ -1,21 +1,27 @@
 {
+  "framework_id": {
+    "value": null
+  },
+  "type": "ACCEPT",
   "accept": {
-    "filters": {
-      "refuse_seconds": 5
-    },
     "offer_ids": [
-      {
-        "value": "39aff76e-aef8-474a-8dd9-b7538b52b3fd-O0"
-      }
     ],
     "operations": [
       {
+        "type": "LAUNCH",
         "launch": {
           "task_infos": [
             {
+              "name": "PingContainer",
+              "agent_id": {
+                "value": null
+              },
+              "task_id": {
+                "value": null
+              },
               "command": {
                 "shell": true,
-                "value": "sleep 1000"
+                "value": "ping -t 100 google.com"
               },
               "container": {
                 "docker": {
@@ -25,13 +31,12 @@
                 },
                 "type": "DOCKER"
               },
-              "name": "",
               "resources": [
                 {
                   "name": "cpus",
                   "role": "*",
                   "scalar": {
-                    "value": 2
+                    "value": 0.5
                   },
                   "type": "SCALAR"
                 },
@@ -39,7 +44,7 @@
                   "name": "mem",
                   "role": "*",
                   "scalar": {
-                    "value": 1024
+                    "value": 100
                   },
                   "type": "SCALAR"
                 },
@@ -47,7 +52,7 @@
                   "name": "disk",
                   "role": "*",
                   "scalar": {
-                    "value": 1024
+                    "value": 10
                   },
                   "type": "SCALAR"
                 },
@@ -64,22 +69,14 @@
                   "role": "*",
                   "type": "RANGES"
                 }
-              ],
-              "slave_id": {
-                "value": "39aff76e-aef8-474a-8dd9-b7538b52b3fd-S0"
-              },
-              "task_id": {
-                "value": "1"
-              }
+              ]
             }
           ]
-        },
-        "type": "LAUNCH"
+        }
       }
-    ]
-  },
-  "framework_id": {
-    "value": "39aff76e-aef8-474a-8dd9-b7538b52b3fd-0000"
-  },
-  "type": "ACCEPT”
+    ],
+    "filters": {
+      "refuse_seconds": 5
+    }
+  }
 }

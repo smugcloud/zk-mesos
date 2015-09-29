@@ -18,9 +18,11 @@ sudo apt-get -y update
 sudo apt-get -y install mesos
 
 sudo mkdir -p /var/local/mesos/logs/{master,agent}
+sudo mkdir -p /var/local/mesos/{master,agent}
 
 # The package install will configure a master/agent to start
 # at boot on each server and point to a non-existent ZooKeeper
 # We need to get rid of that:
-sudo mv /etc/init/mesos-* /var/local/mesos
-
+if [[ -e "/etc/init/mesos-*" ]]; then
+    sudo mv /etc/init/mesos-* /var/local/mesos
+fi
