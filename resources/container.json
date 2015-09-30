@@ -20,12 +20,18 @@
                 "value": null
               },
               "command": {
+                "uris": [
+                  {
+                    "value": "http://192.168.33.1:9000/content.tar.gz",
+                    "extract": true
+                  }
+                ],
                 "shell": true,
-                "value": "ping -t 100 google.com"
+                "value": "cd /var/local/sandbox && python -m SimpleHTTPServer 9090"
               },
               "container": {
                 "docker": {
-                  "image": "busybox",
+                  "image": "python:2.7",
                   "network": "HOST",
                   "privileged": false
                 },
@@ -55,19 +61,6 @@
                     "value": 10
                   },
                   "type": "SCALAR"
-                },
-                {
-                  "name": "ports",
-                  "ranges": {
-                    "range": [
-                      {
-                        "begin": 31000,
-                        "end": 32000
-                      }
-                    ]
-                  },
-                  "role": "*",
-                  "type": "RANGES"
                 }
               ]
             }
