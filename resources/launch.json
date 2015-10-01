@@ -1,13 +1,10 @@
 {
     "framework_id": {
-        "value": "20150821-130640-855746752-5051-32042-0000"
+        "value": null
     },
     "type": "ACCEPT",
     "accept": {
         "offer_ids": [
-            {
-                "value": "20150821-130640-855746752-5051-32042-O0"
-            }
         ],
         "operations": [
             {
@@ -15,11 +12,14 @@
                 "launch": {
                     "task_infos": [
                         {
-                            "name": "List files",
+                            "task_id": {"value": null},
+                            "agent_id": {"value": null},
+                            "name": "Launch Simple HTTP Server",
                             "command": {
                                 "shell": true,
-                                "value": "ls -la /tmp"
-                            }
+                                "value": null
+                            },
+                            "resources": null
                         }
                     ]
                 }
