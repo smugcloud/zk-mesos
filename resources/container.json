@@ -37,32 +37,7 @@
                 },
                 "type": "DOCKER"
               },
-              "resources": [
-                {
-                  "name": "cpus",
-                  "role": "*",
-                  "scalar": {
-                    "value": 0.5
-                  },
-                  "type": "SCALAR"
-                },
-                {
-                  "name": "mem",
-                  "role": "*",
-                  "scalar": {
-                    "value": 100
-                  },
-                  "type": "SCALAR"
-                },
-                {
-                  "name": "disk",
-                  "role": "*",
-                  "scalar": {
-                    "value": 10
-                  },
-                  "type": "SCALAR"
-                }
-              ]
+              "resources": [ ]
             }
           ]
         }
