@@ -48,13 +48,15 @@ Vagrant::Config.run do |config|
 
     # Forward the ports for the Master and HTTP Webserver to Host
     agent.vm.forward_port 22, 2223
-    agent.vm.forward_port 8000, 80
+    agent.vm.forward_port 8000, 8080
     agent.vm.forward_port 5051, 5051
 
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
     agent.vm.network "hostonly", "192.168.33.11"
 
+    # Increase RAM for the Agent to 1GB
+    config.vm.customize ["modifyvm", :id, "--memory", 1024]
 
     # Shares folders to the guest VM.
     agent.vm.share_folder "www", "/var/local/www", "../resources/static"
