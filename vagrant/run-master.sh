@@ -10,4 +10,5 @@ rm -rf "${LOG_DIR}/*"
 sudo mkdir -p /tmp/logs
 mesos-master --work_dir=${WORK_DIR} \
     --ip=192.168.33.10 --port=5050 \
+    --zk=zk://192.168.33.1:2181/mesos/vagrant --quorum=1 \
     --hostname=mesos-master --log_dir=${LOG_DIR} >/dev/null 2>&1 &
