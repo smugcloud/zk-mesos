@@ -26,5 +26,11 @@ if [[ -e "/etc/init/mesos-*" ]]; then
     sudo rm /etc/init/mesos-*
 fi
 
-sudo service mesos-master stop
-sudo service mesos-slave stop
+echo "Stopping Mesos Master/Agent if running on server"
+for service in mesos-master mesos-slave; do
+    IS_RUNNING=$(sudo service ${service} status|grep stop)
+    if [[ -z ${IS_RUNNING} ]]; then
+        echo "${service} is running; Stopping:"
+        sudo service ${service} stop
+    fi
+done
