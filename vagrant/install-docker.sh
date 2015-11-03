@@ -22,4 +22,3 @@ sudo usermod -a -G docker vagrant
 
 VERSION=$(docker --version)
 echo "SUCCESS -- ${VERSION} is up and running"
-
