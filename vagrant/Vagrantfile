@@ -4,29 +4,29 @@
 # https://docs.vagrantup.com.
 
 # Vagrantfile for a single Master + Agent Nodes cluster
-# TODO(marco): bring it to v2 syntax
 # TODO(marco): add a ZK node
 
-Vagrant::Config.run do |config|
+# The hostname must be properly configured, or stuff won't work in the UI
+# Remember to update /etc/hosts on the dev laptop to point to the correct IP
+#   192.168.33.10    mesos-master
+#   192.168.33.11    mesos-agent
 
+Vagrant.require_version ">= 1.5"
+
+Vagrant.configure("2") do |config|
+
+  # Use Ubuntu 14.04; disable automatic box update checking.
   config.vm.box = "ubuntu/trusty64"
-
-  # Disable automatic box update checking.
-  #config.vm.box_check_update = false
+  config.vm.box_check_update = false
 
   config.vm.define "master" do |master|
-
-    # The hostname must be properly configured, or stuff won't work in the UI
-    # Remember to update /etc/hosts on the dev laptop to point to the correct IP
-    #   192.168.33.10    mesos.master
     master.vm.host_name = "mesos-master"
 
-    # Forward the ports for the Master and HTTP Webserver to Host
-    master.vm.forward_port 5050, 5050
-
     # Create a private network, which allows host-only access to the machine
-    # using a specific IP.
-    master.vm.network "hostonly", "192.168.33.10"
+    # using a specific IP and forward the Master port to Host
+    #
+    master.vm.network "private_network", ip: "192.168.33.10"
+    master.vm.network "forwarded_port", guest: 5050, host: 5050
 
     # Installs Mesos (deb pkg) and its dependencies):
     master.vm.provision "Install Mesos", type: "shell" do |s|
@@ -40,28 +40,19 @@ Vagrant::Config.run do |config|
   end
 
   config.vm.define "agent" do |agent|
-
-    # The hostname must be properly configured, or stuff won't work in the UI
-    # Remember to update /etc/hosts on the dev laptop to point to the correct IP
-    #   192.168.33.11    mesos.agent
     agent.vm.host_name = "mesos-agent"
 
-    # Forward the ports for the Master and HTTP Webserver to Host
-    agent.vm.forward_port 22, 2223
-    agent.vm.forward_port 8000, 8080
-    agent.vm.forward_port 5051, 5051
+    config.vm.provider "virtualbox" do |vb|
+        vb.memory = 1024
+    end
 
     # Create a private network, which allows host-only access to the machine
-    # using a specific IP.
-    agent.vm.network "hostonly", "192.168.33.11"
+    # using a specific IP and forward the Master port to Host
+    #
+    agent.vm.network "private_network", ip: "192.168.33.11"
+    agent.vm.network "forwarded_port", guest: 5051, host: 5051
+    agent.vm.network "forwarded_port", guest: 8080, host: 8080
 
-    # Increase RAM for the Agent to 1GB
-    config.vm.customize ["modifyvm", :id, "--memory", 1024]
-
-    # Shares folders to the guest VM.
-    agent.vm.share_folder "www", "/var/local/www", "../resources/static"
-
-    # Enable provisioning with a shell script.
     # Installs Mesos (deb pkg) and its dependencies):
     agent.vm.provision "Install Mesos", type: "shell" do |s|
       s.path = "install-mesos.sh"
@@ -73,8 +64,8 @@ Vagrant::Config.run do |config|
     end
 
     # Launch Mesos Agent
-    agent.vm.provision "Run Agent Node 1", type: "shell", path: "run-agent.sh",
-        run: "always"
+    agent.vm.provision "Run Agent #1", type: "shell", run: "always" do |s|
+        s.path = "run-agent.sh"
+    end
   end
 end
-
