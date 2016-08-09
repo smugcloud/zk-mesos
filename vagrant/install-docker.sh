@@ -10,10 +10,10 @@ if [[ $? != 0 ]]; then
     exit 1
 fi
 
-# Check this can download and run containers
+# Check we can pull and run containers
 RES=$(docker run hello-world | grep "Hello from Docker.")
 if [[ -z ${RES} ]]; then
-    echo "ERROR - look like docker installed, but containers cannot be run"
+    echo "ERROR - looks like docker was installed, but containers cannot be run"
     exit 1
 fi
 

@@ -8,7 +8,7 @@ SANDBOX=/var/local/sandbox
 rm -rf /tmp/slave
 rm -rf "${LOG_DIR}/*"
 
-mesos-slave --work_dir=${WORK_DIR} \
+mesos-agent --work_dir=${WORK_DIR} \
     --ip=192.168.33.11 --port=5051 \
     --master=zk://192.168.33.10:2181/mesos/vagrant \
     --log_dir=${LOG_DIR} \
