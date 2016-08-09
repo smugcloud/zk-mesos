@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# Starts Apache Mesos Master node - run with superuser privileges (sudo).
+
 LOG_DIR=/var/local/mesos/logs/master
 WORK_DIR=/var/local/mesos/master
 
 # clean-up logs and work directory from previous runs.
-rm -rf /tmp/slave
+rm -rf "${WORK_DIR}/*"
 rm -rf "${LOG_DIR}/*"
+
+mkdir -p ${WORK_DIR}
+mkdir -p ${LOG_DIR}
 
 # We will run Zookeeper in a container, this is the simplest option.
 # See: https://hub.docker.com/r/jplock/zookeeper/~/dockerfile/

@@ -56,6 +56,9 @@ Vagrant.configure("2") do |config|
     master.vm.provision "Run Master", type: "shell", run: "always" do |s|
         s.path = "run-master.sh"
     end
+
+    # Copy the startup script so it's available when the VM gets rebooted.
+    master.vm.provision "file", source: "run-master.sh", destination: "run-master.sh"
   end
 
   config.vm.define "agent" do |agent|
@@ -88,5 +91,8 @@ Vagrant.configure("2") do |config|
     agent.vm.provision "Run Agent #1", type: "shell", run: "always" do |s|
         s.path = "run-agent.sh"
     end
+
+    # Copy the startup script so it's available when the VM gets rebooted.
+    agent.vm.provision "file", source: "run-agent.sh", destination: "run-agent.sh"
   end
 end

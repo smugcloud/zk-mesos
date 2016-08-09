@@ -1,12 +1,18 @@
 #!/bin/bash
 
+# Starts Apache Mesos Agent node - run with superuser privileges (sudo).
+
 LOG_DIR=/var/local/mesos/logs/agent
 WORK_DIR=/var/local/mesos/agent
 SANDBOX=/var/local/sandbox
 
 # clean-up logs and work directory from previous runs.
-rm -rf /tmp/slave
+rm -rf "${WORK_DIR}/*"
 rm -rf "${LOG_DIR}/*"
+
+mkdir -p ${WORK_DIR}
+mkdir -p ${LOG_DIR}
+mkdir -p ${SANDBOX}
 
 mesos-agent --work_dir=${WORK_DIR} \
     --ip=192.168.33.11 --port=5051 \
