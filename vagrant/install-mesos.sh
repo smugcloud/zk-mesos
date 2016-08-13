@@ -3,11 +3,10 @@
 DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
 CODENAME=$(lsb_release -cs)
 
-sudo apt-get update && sudo apt-get -y upgrade
+sudo apt-get update && \
+    sudo apt-get install -y -f openjdk-8-jre-headless libcurl3 libsvn1 libevent-dev
 
-sudo apt-get install -y -f openjdk-8-jre-headless libcurl3 libsvn1 libevent-dev
-sudo apt-get install -y -f
-sudo apt-get dist-upgrade -y
+sudo apt-get install -y -f && sudo apt-get dist-upgrade -y
 
 # Install Apache Mesos 1.0.0 package from Mesosphere
 # See: http://open.mesosphere.com/downloads/mesos/#apache-mesos-1.0.0

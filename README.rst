@@ -67,11 +67,17 @@ the Web UI for Mesos is reachable from the host dev box via: ``http://192.168.33
 Unfortunately, with the current setup, any reboot of either VMs will cause the Master or Agent
 **not** to come up again: you will have to manually restart them.
 
-For example, if the Master VM is rebooted::
+    TODO - make it so that Master/Agent and ZK restart after a VM reboot
 
+For example, if the Master VM is rebooted, Mesos can be restarted with (by default Vagrant will
+copy all the files in the folder containing the ``Vagrantfile`` to ``/vagrant`` on the VM::
+
+    # On the host machine:
     cd vagrant
     vagrant ssh master
-    $ sudo ./run-master.sh
+    
+    # Once SSH'd into the VM:
+    $ sudo /vagrant/run-master.sh
     $ exit
 
 The logs are in the ``/var/local/mesos/{master,agent}/logs`` and can be inspected by SSH'ing into
