@@ -21,17 +21,13 @@
               },
               "command": {
                 "uris": [
-                  {
-                    "value": "http://192.168.33.1:9000/content.tar.gz",
-                    "extract": true
-                  }
+
                 ],
-                "shell": true,
-                "value": "cd /var/local/sandbox && python -m SimpleHTTPServer 9090"
+                "shell": false
               },
               "container": {
                 "docker": {
-                  "image": "python:2.7",
+                  "image": "nginx:1.10-alpine",
                   "network": "HOST",
                   "privileged": false
                 },
