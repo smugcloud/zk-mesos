@@ -1,0 +1,42 @@
+{"offers": [
+   {...
+    "attributes": [ {
+            "name": "rack",
+            "text": {
+                "value": "r2d2"
+            },
+            "type": "TEXT"
+        },
+        {
+            "name": "pod",
+            "text": {
+                "value": "demo,dev"
+            },
+            "type": "TEXT"
+        }
+    ],
+    ...
+    "resources": [
+        {
+            "name": "ports",
+            "ranges": {
+                "range": [ {"begin": 9000, "end": 10000}]
+        },
+        {
+            "name": "cpus",
+            "role": "*",
+            "scalar": {"value": 2.0},
+        },
+        {
+            "name": "mem",
+            "role": "*",
+            "scalar": {"value": 496.0},
+        },
+        {
+            "name": "disk",
+            "role": "*",
+            "scalar": { "value": 4930.0 },
+        }
+    ],
+    ...
+] }
